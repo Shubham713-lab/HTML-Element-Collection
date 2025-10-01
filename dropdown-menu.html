@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reusable Dropdown Menu Demo</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: #f8fafc;
+      margin: 0;
+    }
+
+    /* Dropdown wrapper */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Button that toggles menu */
+    .dropdown-button {
+      background: #2563eb;
+      color: white;
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dropdown-button:focus {
+      outline: 3px solid rgba(37,99,235,0.3);
+    }
+
+    /* Dropdown content (hidden by default) */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 180px;
+      background-color: white;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 4px;
+      z-index: 1000;
+    }
+
+    /* Individual items */
+    .dropdown-content a {
+      display: block;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: #111827;
+      transition: background 0.2s;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #eff6ff;
+    }
+
+    /* Show dropdown */
+    .dropdown.show .dropdown-content {
+      display: block;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .dropdown-button {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+      .dropdown-content {
+        min-width: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dropdown" id="dropdown1">
+    <button class="dropdown-button" aria-haspopup="true" aria-expanded="false">
+      Menu ▼
+    </button>
+    <div class="dropdown-content">
+      <a href="#">Item 1</a>
+      <a href="#">Item 2</a>
+      <a href="#">Item 3</a>
+      <a href="#">Item 4</a>
+    </div>
+  </div>
+
+  <script>
+    // Reusable dropdown toggle function
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+      const button = dropdown.querySelector('.dropdown-button');
+      const menu = dropdown.querySelector('.dropdown-content');
+
+      button.addEventListener('click', () => {
+        const isOpen = dropdown.classList.toggle('show');
+        button.setAttribute('aria-expanded', isOpen);
+      });
+    });
+
+    // Close dropdown if clicking outside
+    window.addEventListener('click', e => {
+      document.querySelectorAll('.dropdown').forEach(dropdown => {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove('show');
+          const button = dropdown.querySelector('.dropdown-button');
+          button.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    // Keyboard accessibility
+    document.querySelectorAll('.dropdown-button').forEach(button => {
+      button.addEventListener('keydown', e => {
+        const dropdown = button.parentElement;
+        if (e.key === 'Escape') {
+          dropdown.classList.remove('show');
+          button.setAttribute('aria-expanded', 'false');
+          button.focus();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
