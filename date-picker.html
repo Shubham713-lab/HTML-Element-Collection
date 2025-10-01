@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Date Picker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f4f8;
+      color: #333;
+    }
+
+    .date-picker {
+      position: relative;
+      width: 280px;
+    }
+
+    .date-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .calendar {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 8px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      width: 100%;
+      display: none;
+    }
+
+    .calendar.visible {
+      display: block;
+    }
+
+    .calendar header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f7f7f7;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .calendar header button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .calendar header .month-year {
+      font-weight: bold;
+    }
+
+    .calendar .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #fafafa;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .calendar .weekdays div {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .calendar .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: 10px;
+    }
+
+    .calendar .day {
+      width: 100%;
+      height: 34px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 2px 0;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .calendar .day:hover {
+      background: #e2e8f0;
+    }
+
+    .calendar .day.disabled {
+      color: #ccc;
+      cursor: default;
+    }
+
+    .calendar .day.selected {
+      background: #3182ce;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="date-picker">
+    <input type="text" class="date-input" placeholder="Select date" readonly aria-haspopup="grid" aria-expanded="false" />
+    <div class="calendar" role="dialog" aria-modal="true" aria-label="Calendar">
+      <header>
+        <button type="button" class="prev-month" aria-label="Previous month">&lt;</button>
+        <div class="month-year"></div>
+        <button type="button" class="next-month" aria-label="Next month">&gt;</button>
+      </header>
+      <div class="weekdays">
+        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+      </div>
+      <div class="days"></div>
+    </div>
+  </div>
+
+  <script>
+    class DatePicker {
+      constructor(root) {
+        this.root = root;
+        this.input = root.querySelector('.date-input');
+        this.calendar = root.querySelector('.calendar');
+        this.headerMonthYear = root.querySelector('.month-year');
+        this.prevBtn = root.querySelector('.prev-month');
+        this.nextBtn = root.querySelector('.next-month');
+        this.daysContainer = root.querySelector('.days');
+
+        const today = new Date();
+        this.currentYear = today.getFullYear();
+        this.currentMonth = today.getMonth();
+        this.selectedDate = null;
+
+        this._bindEvents();
+        this._renderCalendar();
+      }
+
+      _bindEvents() {
+        this.input.addEventListener('click', () => this._toggleCalendar());
+        this.prevBtn.addEventListener('click', () => {
+          this._changeMonth(-1);
+        });
+        this.nextBtn.addEventListener('click', () => {
+          this._changeMonth(1);
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!this.root.contains(e.target)) {
+            this._closeCalendar();
+          }
+        });
+
+        this.daysContainer.addEventListener('click', (e) => {
+          if (e.target.classList.contains('day') && !e.target.classList.contains('disabled')) {
+            this._selectDate(e.target.dataset.date);
+          }
+        });
+
+        // Keyboard support
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this._toggleCalendar();
+          }
+        });
+      }
+
+      _toggleCalendar() {
+        const isOpen = this.calendar.classList.contains('visible');
+        if (isOpen) {
+          this._closeCalendar();
+        } else {
+          this._openCalendar();
+        }
+      }
+
+      _openCalendar() {
+        this.calendar.classList.add('visible');
+        this.input.setAttribute('aria-expanded', 'true');
+      }
+
+      _closeCalendar() {
+        this.calendar.classList.remove('visible');
+        this.input.setAttribute('aria-expanded', 'false');
+      }
+
+      _changeMonth(delta) {
+        this.currentMonth += delta;
+        if (this.currentMonth < 0) {
+          this.currentMonth = 11;
+          this.currentYear--;
+        } else if (this.currentMonth > 11) {
+          this.currentMonth = 0;
+          this.currentYear++;
+        }
+        this._renderCalendar();
+      }
+
+      _renderCalendar() {
+        const year = this.currentYear;
+        const month = this.currentMonth;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        this.headerMonthYear.textContent = `${this._monthName(month)} ${year}`;
+
+        this.daysContainer.innerHTML = '';
+
+        // preceding blank days
+        for (let i = 0; i < firstDay; i++) {
+          const blank = document.createElement('div');
+          blank.className = 'day disabled';
+          this.daysContainer.appendChild(blank);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayEl = document.createElement('div');
+          dayEl.className = 'day';
+          dayEl.textContent = day;
+          const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+          dayEl.dataset.date = dateString;
+
+          if (this.selectedDate === dateString) {
+            dayEl.classList.add('selected');
+          }
+
+          this.daysContainer.appendChild(dayEl);
+        }
+      }
+
+      _selectDate(dateString) {
+        this.selectedDate = dateString;
+        this.input.value = this._formatDate(dateString);
+        this._closeCalendar();
+        this._renderCalendar();
+      }
+
+      _formatDate(dateString) {
+        // support multiple formats; here default is YYYY-MM-DD
+        const [y, m, d] = dateString.split('-');
+        return `${d}/${m}/${y}`;  // you can change format
+      }
+
+      _monthName(monthIdx) {
+        return [
+          'January','February','March','April','May','June',
+          'July','August','September','October','November','December'
+        ][monthIdx];
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dp = new DatePicker(document.querySelector('.date-picker'));
+    });
+  </script>
+</body>
+</html>
