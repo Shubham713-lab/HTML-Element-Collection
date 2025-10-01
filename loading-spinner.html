@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Standalone CSS Spinner</title>
+  <style>
+    /* --spinner-size and --spinner-color are the customization hooks */
+    :root {
+      --spinner-size: 48px;
+      --spinner-color: #2563eb; /* blue */
+    }
+
+    /* Wrapper to place spinner centrally in demo page */
+    .demo {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f8fafc;
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+
+    /* Spinner component */
+    .spinner {
+      width: var(--spinner-size);
+      height: var(--spinner-size);
+      display: inline-block;
+      position: relative;
+      /* keep the spinner accessible */
+      aria-hidden: true;
+    }
+
+    /* Outer ring */
+    .spinner .ring {
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: calc(var(--spinner-size) / 8) solid rgba(0,0,0,0.08);
+      border-top-color: var(--spinner-color);
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Optional inner dot for a nicer look — can be removed if minimal needed */
+    .spinner .dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      width: calc(var(--spinner-size) / 5);
+      height: calc(var(--spinner-size) / 5);
+      border-radius: 50%;
+      background: var(--spinner-color);
+      opacity: 0.15;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Utility small/large variants if repo wants classes instead of CSS vars */
+    .spinner--sm { --spinner-size: 24px; }
+    .spinner--md { --spinner-size: 48px; }
+    .spinner--lg { --spinner-size: 72px; }
+
+    /* High-contrast theme friendliness — spinner respects current color scheme */
+    @media (prefers-color-scheme: dark) {
+      .demo { background: #0b1220; color: #e6eef8; }
+      /* fallback color for dark mode if not set by user */
+      :root { --spinner-color: #60a5fa; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo">
+    <!-- Example usage: change size & color with inline style or class -->
+    <div class="spinner spinner--md" style="--spinner-color: #ea580c;" role="status" aria-label="Loading">
+      <div class="ring"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</body>
+</html>
