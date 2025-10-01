@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form with Validation</title>
+    <style>
+        /* CSS Variables (For easy theming and better readability) */
+        :root {
+            --default-color: #333;
+            --surface-color: #ffffff;
+            --accent-color: #007bff;
+            /* Primary Blue */
+            --contrast-color: #ffffff;
+            --error-color: #dc3545;
+            /* Red for errors */
+            --success-color: #28a745;
+            /* Green for success */
+        }
+
+        /* Reset and Basic Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            /* Light background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* --- Section Title --- */
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--default-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        /* --- Contact Form Styles --- */
+        .contact-form {
+            background-color: var(--surface-color);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 40px;
+            /* Note: Renamed from .php-email-form to .contact-form for generic use */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--default-color);
+            font-size: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            transition: all 0.3s;
+            background-color: #fefefe;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        /* --- Validation Styles (Requirement 3: Highlight invalid fields) --- */
+        .is-invalid {
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        /* Requirement 2: Show error messages dynamically */
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            font-weight: 500;
+            display: none;
+            /* Hidden by default, shown by JS */
+        }
+
+        /* --- Submit Button Styles --- */
+        button[type=submit] {
+            color: var(--contrast-color);
+            background: var(--accent-color);
+            border: 0;
+            padding: 12px 30px;
+            transition: background-color 0.3s, transform 0.1s;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button[type=submit]:hover {
+            background: color-mix(in srgb, var(--accent-color), transparent 20%);
+        }
+
+        button[type=submit]:active {
+            transform: scale(0.99);
+        }
+
+        /* Dynamic Status Messages */
+        .loading,
+        .sent-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .loading {
+            background: #e9ecef;
+            color: var(--default-color);
+        }
+
+        .sent-message {
+            background: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Responsive design */
+        @media (max-width: 575px) {
+            .contact-form {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <section id="contact" class="contact section">
+
+            <div class="section-title">
+                <h2>Contact Us</h2>
+            </div>
+
+            <form id="contactForm" action="#" method="post" class="contact-form">
+                <div class="row gy-4">
+
+                    <div class="col-md-12 form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" name="name" class="form-control" id="name"
+                            placeholder="Enter your full name">
+                        <div id="nameError" class="error-message"></div>
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" class="form-control" name="email" id="email"
+                            placeholder="example@domain.com">
+                        <div id="emailError" class="error-message"></div>
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                        <label for="message">Message</label>
+                        <textarea class="form-control" name="message" id="message" rows="5"
+                            placeholder="Write your message here"></textarea>
+                        <div id="messageError" class="error-message"></div>
+                    </div>
+
+                    <div class="col-md-12 text-center">
+                        <div class="loading">Loading...</div>
+                        <div class="sent-message">Your message has been sent. Thank you!</div>
+
+                        <button type="submit">Send Message</button>
+                    </div>
+
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('contactForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const messageInput = document.getElementById('message');
+
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const messageError = document.getElementById('messageError');
+
+            // --- Validation Functions (Requirement 1: Validate name, email, message) ---
+
+            function isValidName(name) {
+                // Must not be empty and at least 2 characters
+                return name.trim().length >= 2;
+            }
+
+            function isValidEmail(email) {
+                // Basic email regex pattern check
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            function isValidMessage(message) {
+                // Must not be empty and at least 10 characters
+                return message.trim().length >= 10;
+            }
+
+            // --- Core Validation Logic (Requirement 2 & 3) ---
+
+            function validateField(inputElement, errorElement, validationFn, errorMessage) {
+                const value = inputElement.value;
+                if (validationFn(value)) {
+                    // Valid: remove error highlighting and message
+                    inputElement.classList.remove('is-invalid');
+                    errorElement.style.display = 'none';
+                    errorElement.textContent = '';
+                    return true;
+                } else {
+                    // Invalid: add error highlighting and show message
+                    inputElement.classList.add('is-invalid');
+                    errorElement.textContent = errorMessage;
+                    errorElement.style.display = 'block';
+                    return false;
+                }
+            }
+
+            // --- Live Validation on input field blur (better user experience) ---
+
+            nameInput.addEventListener('blur', () => {
+                validateField(nameInput, nameError, isValidName, 'Name is required and must be at least 2 characters long.');
+            });
+
+            emailInput.addEventListener('blur', () => {
+                validateField(emailInput, emailError, isValidEmail, 'Email must be a valid address (e.g., example@domain.com).');
+            });
+
+            messageInput.addEventListener('blur', () => {
+                validateField(messageInput, messageError, isValidMessage, 'Message is required and must be at least 10 characters long.');
+            });
+
+            // --- Form Submission Handler ---
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Stop default form submission
+
+                // Run all validations on submission
+                const isNameValid = validateField(nameInput, nameError, isValidName, 'Name is required and must be at least 2 characters long.');
+                const isEmailValid = validateField(emailInput, emailError, isValidEmail, 'Email must be a valid address (e.g., example@domain.com).');
+                const isMessageValid = validateField(messageInput, messageError, isValidMessage, 'Message is required and must be at least 10 characters long.');
+
+                // Check if all fields are valid
+                if (isNameValid && isEmailValid && isMessageValid) {
+                    // --- Simulated Successful Submission ---
+
+                    const loading = document.querySelector('.loading');
+                    const sentMessage = document.querySelector('.sent-message');
+
+                    // Show loading message
+                    loading.style.display = 'block';
+                    sentMessage.style.display = 'none';
+
+                    // Simulate server submission delay (e.g., using fetch or XMLHttpRequest)
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+
+                        // Show success message
+                        sentMessage.style.display = 'block';
+                        form.reset(); // Clear form fields
+
+                        // Optional: Hide success message after a few seconds
+                        setTimeout(() => {
+                            sentMessage.style.display = 'none';
+                        }, 5000);
+
+                    }, 1500); // 1.5 second delay
+                } else {
+                    // Fields are invalid, error messages are already visible due to validateField function.
+                    console.log('Form submission blocked due to validation errors.');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
