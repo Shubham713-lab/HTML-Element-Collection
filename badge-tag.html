@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge & Tag Component - HTML Element Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .demo-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .demo-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Badge Styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        /* Badge Colors */
+        .badge-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .badge-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .badge-light {
+            background-color: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .badge-dark {
+            background-color: #343a40;
+            color: white;
+        }
+
+        /* Badge Sizes */
+        .badge-sm {
+            padding: 4px 8px;
+            font-size: 0.65rem;
+        }
+
+        .badge-lg {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Badge with Icons */
+        .badge-icon {
+            padding: 6px 12px 6px 8px;
+        }
+
+        .badge-icon::before {
+            content: "●";
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        .badge-notification::before {
+            content: "🔔";
+            margin-right: 4px;
+        }
+
+        .badge-star::before {
+            content: "⭐";
+            margin-right: 4px;
+        }
+
+        .badge-check::before {
+            content: "✅";
+            margin-right: 4px;
+        }
+
+        /* Pill Badges */
+        .badge-pill {
+            border-radius: 50px;
+        }
+
+        /* Outline Badges */
+        .badge-outline-primary {
+            background-color: transparent;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .badge-outline-success {
+            background-color: transparent;
+            color: #28a745;
+            border: 2px solid #28a745;
+        }
+
+        .badge-outline-danger {
+            background-color: transparent;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+
+        .badge-outline-warning {
+            background-color: transparent;
+            color: #ffc107;
+            border: 2px solid #ffc107;
+        }
+
+        /* Tag Styles */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #e9ecef;
+            color: #495057;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .tag:hover {
+            background-color: #dee2e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Removable Tags */
+        .tag-removable {
+            padding-right: 8px;
+        }
+
+        .tag-close {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .tag-close:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Tag Colors */
+        .tag-blue {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .tag-green {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .tag-red {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .tag-orange {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .tag-purple {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: relative;
+            display: inline-block;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+
+        /* Status Badges */
+        .status-online {
+            background-color: #28a745;
+            color: white;
+            position: relative;
+        }
+
+        .status-online::after {
+            content: '';
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #20c997;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Usage Examples */
+        .usage-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .usage-example h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .example-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .button-with-badge {
+            position: relative;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Badge & Tag Components</h1>
+            <p>Versatile badges and tags for status indicators, labels, and interactive elements</p>
+        </div>
+
+        <!-- Basic Badges Section -->
+        <div class="section">
+            <h2>Basic Badges</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Color Variants</h3>
+                    <div class="demo-examples">
+                        <span class="badge badge-primary">Primary</span>
+                        <span class="badge badge-secondary">Secondary</span>
+                        <span class="badge badge-success">Success</span>
+                        <span class="badge badge-danger">Danger</span>
+                        <span class="badge badge-warning">Warning</span>
+                        <span class="badge badge-info">Info</span>
+                        <span class="badge badge-light">Light</span>
+                        <span class="badge badge-dark">Dark</span>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Badge Sizes</h3>
+                    <div class="demo-examples">
+                        <span class="badge badge-primary badge-sm">Small</span>
+                        <span class="badge badge-primary">Default</span>
+                        <span class="badge badge-primary badge-lg">Large</span>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Pill Badges</h3>
+                    <div class="demo-examples">
+                        <span class="badge badge-primary badge-pill">Pill</span>
+                        <span class="badge badge-success badge-pill">Success</span>
+                        <span class="badge badge-danger badge-pill">Error</span>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Outline Badges</h3>
+                    <div class="demo-examples">
+                        <span class="badge badge-outline-primary">Primary</span>
+                        <span class="badge badge-outline-success">Success</span>
+                        <span class="badge badge-outline-danger">Danger</span>
+                        <span class="badge badge-outline-warning">Warning</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Icon Badges Section -->
+        <div class="section">
+            <h2>Icon Badges</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>With Icons</h3>
+                    <div class="demo-examples">
+                        <span class="badge badge-success badge-icon">Online</span>
+                        <span class="badge badge-notification badge-info">New</span>
+                        <span class="badge badge-star badge-warning">Featured</span>
+                        <span class="badge badge-check badge-success">Verified</span>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Status Badges</h3>
+                    <div class="demo-examples">
+                        <span class="badge status-online">Active</span>
+                        <span class="badge badge-warning">Pending</span>
+                        <span class="badge badge-danger">Offline</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags Section -->
+        <div class="section">
+            <h2>Interactive Tags</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Basic Tags</h3>
+                    <div class="demo-examples">
+                        <span class="tag">JavaScript</span>
+                        <span class="tag tag-blue">React</span>
+                        <span class="tag tag-green">Node.js</span>
+                        <span class="tag tag-red">Angular</span>
+                        <span class="tag tag-orange">Vue.js</span>
+                        <span class="tag tag-purple">TypeScript</span>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Removable Tags</h3>
+                    <div class="demo-examples">
+                        <span class="tag tag-removable tag-blue">
+                            HTML
+                            <button class="tag-close" onclick="removeTag(this)">×</button>
+                        </span>
+                        <span class="tag tag-removable tag-green">
+                            CSS
+                            <button class="tag-close" onclick="removeTag(this)">×</button>
+                        </span>
+                        <span class="tag tag-removable tag-purple">
+                            SCSS
+                            <button class="tag-close" onclick="removeTag(this)">×</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Badges Section -->
+        <div class="section">
+            <h2>Notification Badges</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Button with Badge</h3>
+                    <div class="demo-examples">
+                        <div class="notification-badge">
+                            <button class="button-with-badge">Messages</button>
+                            <span class="notification-count">5</span>
+                        </div>
+                        <div class="notification-badge">
+                            <button class="button-with-badge">Notifications</button>
+                            <span class="notification-count">12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Icon with Badge</h3>
+                    <div class="demo-examples">
+                        <div class="notification-badge">
+                            <span style="font-size: 1.5rem;">🔔</span>
+                            <span class="notification-count">3</span>
+                        </div>
+                        <div class="notification-badge">
+                            <span style="font-size: 1.5rem;">📧</span>
+                            <span class="notification-count">99+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Examples Section -->
+        <div class="section">
+            <h2>Real-World Usage Examples</h2>
+            
+            <div class="usage-example">
+                <h4>User Profile with Status</h4>
+                <div class="example-content">
+                    <div class="user-card">
+                        <div class="avatar">JD</div>
+                        <div>
+                            <strong>John Doe</strong>
+                            <div>
+                                <span class="badge badge-success badge-sm">Pro User</span>
+                                <span class="badge status-online badge-sm">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="usage-example">
+                <h4>Project Tags</h4>
+                <div class="example-content">
+                    <strong>Technologies:</strong>
+                    <span class="tag tag-blue">React</span>
+                    <span class="tag tag-green">Node.js</span>
+                    <span class="tag tag-purple">MongoDB</span>
+                    <span class="tag tag-orange">Express</span>
+                </div>
+            </div>
+
+            <div class="usage-example">
+                <h4>Status Indicators</h4>
+                <div class="example-content">
+                    <span class="badge badge-success">✅ Completed</span>
+                    <span class="badge badge-warning">⏳ In Progress</span>
+                    <span class="badge badge-danger">❌ Failed</span>
+                    <span class="badge badge-info">📋 Pending Review</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to remove tags
+        function removeTag(button) {
+            const tag = button.parentElement;
+            tag.style.transform = 'scale(0)';
+            tag.style.opacity = '0';
+            setTimeout(() => {
+                tag.remove();
+            }, 200);
+        }
+
+        // Add some interactive behavior
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to badges
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                badge.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                badge.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Animate notification badges on load
+            const notificationCounts = document.querySelectorAll('.notification-count');
+            notificationCounts.forEach((count, index) => {
+                setTimeout(() => {
+                    count.style.animation = 'pulse 2s infinite';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
