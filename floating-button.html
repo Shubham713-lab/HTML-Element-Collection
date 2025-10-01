@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Floating Action Button Demo</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: #f8fafc;
+    }
+
+    /* Floating button */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      background: #2563eb; /* blue */
+      border-radius: 50%;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      z-index: 1000;
+    }
+
+    /* Hover effect */
+    .fab:hover {
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 10px 20px rgba(2,6,23,0.3);
+    }
+
+    /* Active / click feedback */
+    .fab:active {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 18px rgba(2,6,23,0.25);
+    }
+
+    /* Optional: ripple effect on click */
+    .fab::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .fab:focus::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating Action Button -->
+  <button class="fab" id="fabBtn" aria-label="Action button">+</button>
+
+  <script>
+    const fabBtn = document.getElementById('fabBtn');
+
+    fabBtn.addEventListener('click', () => {
+      // Example action: show an alert (replace with any custom action)
+      alert('Floating button clicked!');
+    });
+  </script>
+</body>
+</html>
