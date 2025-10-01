@@ -90,5 +90,3 @@ See the [LICENSE](LICENSE) file for details.
 ![GitHub contributors](https://img.shields.io/github/contributors/Shubham713-lab/HTML-Element-Collection)
 
 ---
-
-Would you also like me to prepare a **starter `index.html` template** (with a placeholder section for contributors) so people can just paste their components neatly?
