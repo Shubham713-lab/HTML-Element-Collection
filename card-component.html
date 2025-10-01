@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Component Example</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f0f2f5;
+      padding: 20px;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .card-content {
+      padding: 16px;
+      flex: 1; /* To stretch content section */
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .card-description {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    .card-button {
+      margin: 16px;
+      text-align: center;
+    }
+
+    .card-button a {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+
+    .card-button a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cards-container" id="cards-container">
+    <!-- Cards will be injected here by JS -->
+  </div>
+
+  <script>
+    // Example data (could come from JSON or API)
+    const cardsData = [
+      {
+        image: "https://via.placeholder.com/400x200?text=Card+1",
+        title: "Card One",
+        description: "This is a description for card one. It gives details and context."
+      },
+      {
+        image: "https://via.placeholder.com/400x200?text=Card+2",
+        title: "Card Two",
+        description: "This is a description for card two. More info goes here."
+      },
+      {
+        image: "https://via.placeholder.com/400x200?text=Card+3",
+        title: "Card Three",
+        description: "This is a description for card three. Even more details."
+      }
+      // you can add more cards
+    ];
+
+    const container = document.getElementById("cards-container");
+
+    function createCard(cardObj) {
+      const card = document.createElement("div");
+      card.classList.add("card");
+
+      // Image
+      const img = document.createElement("img");
+      img.src = cardObj.image;
+      img.alt = cardObj.title;
+
+      // Content container
+      const content = document.createElement("div");
+      content.classList.add("card-content");
+
+      const title = document.createElement("h3");
+      title.classList.add("card-title");
+      title.innerText = cardObj.title;
+
+      const desc = document.createElement("p");
+      desc.classList.add("card-description");
+      desc.innerText = cardObj.description;
+
+      content.appendChild(title);
+      content.appendChild(desc);
+
+      // Optional: Add a button / link
+      const btnWrapper = document.createElement("div");
+      btnWrapper.classList.add("card-button");
+      const link = document.createElement("a");
+      link.href = "#";
+      link.innerText = "Read More";
+      btnWrapper.appendChild(link);
+
+      // Compose card
+      card.appendChild(img);
+      card.appendChild(content);
+      card.appendChild(btnWrapper);
+
+      return card;
+    }
+
+    // Render all cards
+    cardsData.forEach(data => {
+      const cardEl = createCard(data);
+      container.appendChild(cardEl);
+    });
+  </script>
+
+</body>
+</html>
