@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dark / Light Mode Toggle — Demo</title>
+  <style>
+    :root{
+      --bg: #ffffff;
+      --text: #111827;
+      --accent: #2563eb;
+      --card: #f3f4f6;
+    }
+    [data-theme="dark"]{
+      --bg: #0b1220;
+      --text: #e6eef8;
+      --accent: #60a5fa;
+      --card: #0f1724;
+    }
+
+    /* Smooth transition for themeable properties */
+    html, body {
+      height: 100%;
+      margin: 0;
+      transition: background-color 300ms ease, color 300ms ease;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.12);
+      padding: 1.6rem;
+      border: 1px solid rgba(0,0,0,0.04);
+      background-color: var(--card);
+      transition: background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+    }
+
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 1rem;
+    }
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Toggle button styles */
+    .toggle {
+      --size: 44px;
+      width: var(--size);
+      height: calc(var(--size) / 2);
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      position: relative;
+      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      padding: 4px;
+      transition: background 250ms ease;
+      border: none;
+    }
+
+    .toggle:focus {
+      outline: 3px solid rgba(37,99,235,0.18);
+      outline-offset: 2px;
+    }
+
+    .knob {
+      width: calc(var(--size) / 2 - 8px);
+      height: calc(var(--size) / 2 - 8px);
+      border-radius: 50%;
+      background: white;
+      transform: translateX(0);
+      transition: transform 300ms cubic-bezier(.2,.9,.3,1), background 200ms ease;
+      box-shadow: 0 3px 8px rgba(2,6,23,0.18);
+    }
+
+    [data-theme="dark"] .toggle {
+      background: rgba(255,255,255,0.06);
+    }
+    [data-theme="dark"] .knob {
+      background: #111827;
+      transform: translateX(28px); /* move knob to the right */
+    }
+
+    .meta { font-size: 0.9rem; color: rgba(0,0,0,0.6); }
+    [data-theme="dark"] .meta { color: rgba(255,255,255,0.65); }
+
+    /* small responsive */
+    @media (max-width:420px){
+      .card { padding: 1rem; }
+      .title { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <article class="card" id="page">
+      <div class="header">
+        <div>
+          <div class="title">Dark / Light Mode Toggle</div>
+          <div class="meta">Toggle between themes. Preference is saved to your browser.</div>
+        </div>
+
+        <!-- Accessible toggle button -->
+        <button id="themeToggle"
+                class="toggle"
+                role="switch"
+                aria-checked="false"
+                aria-label="Toggle dark and light theme">
+          <span class="knob" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <section style="margin-top:1rem;">
+        <p>
+          This demo uses a single-file, dependency-free JavaScript implementation.
+          It respects the OS preference on first load and remembers user choice using <code>localStorage</code>.
+        </p>
+
+        <p style="margin-top:1rem;">
+          Try toggling the switch — notice the smooth transition between themes.
+        </p>
+      </section>
+    </article>
+  </div>
+
+  <script>
+    (function () {
+      const THEME_KEY = 'theme-preference'; // 'light' | 'dark' | null (null = follow system)
+      const toggleBtn = document.getElementById('themeToggle');
+
+      // Apply theme to documentElement quickly (no transition during initial apply)
+      function applyTheme(theme, { skipTransition = false } = {}) {
+        const root = document.documentElement;
+        if (skipTransition) {
+          root.style.transition = 'none';
+        } else {
+          root.style.transition = '';
+        }
+
+        if (theme === 'dark') {
+          root.setAttribute('data-theme', 'dark');
+          toggleBtn.setAttribute('aria-checked', 'true');
+        } else if (theme === 'light') {
+          root.removeAttribute('data-theme');
+          toggleBtn.setAttribute('aria-checked', 'false');
+        } else { // follow system
+          root.removeAttribute('data-theme');
+          toggleBtn.setAttribute('aria-checked', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'true' : 'false');
+        }
+
+        // restore normal transition after initial paint (so user sees animation on toggle)
+        if (skipTransition) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              root.style.transition = '';
+            });
+          });
+        }
+      }
+
+      // Read saved preference
+      function getSavedTheme() {
+        try {
+          return localStorage.getItem(THEME_KEY); // 'dark' | 'light' | null
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // Save preference
+      function saveTheme(theme) {
+        try {
+          if (theme === null) {
+            localStorage.removeItem(THEME_KEY);
+          } else {
+            localStorage.setItem(THEME_KEY, theme);
+          }
+        } catch (e) {
+          // ignore storage errors (e.g. incognito)
+        }
+      }
+
+      // Toggle logic: if current explicit theme is dark -> set light; if light -> dark; if no explicit -> flip based on current computed.
+      function toggleTheme() {
+        const saved = getSavedTheme();
+        let next;
+        if (saved === 'dark') next = 'light';
+        else if (saved === 'light') next = 'dark';
+        else { // follow system: determine current effective
+          next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
+        }
+        saveTheme(next);
+        applyTheme(next);
+      }
+
+      // Initialize: prefer saved -> else system -> else light
+      (function init() {
+        const saved = getSavedTheme();
+        if (saved === 'dark' || saved === 'light') {
+          applyTheme(saved, { skipTransition: true });
+        } else {
+          // follow system
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          applyTheme(prefersDark ? 'dark' : 'light', { skipTransition: true });
+        }
+      })();
+
+      // Hook up button
+      toggleBtn.addEventListener('click', function (e) {
+        toggleTheme();
+        // small visual feedback
+        toggleBtn.blur();
+      });
+
+      // Accessibility: allow keyboard toggle with Enter/Space
+      toggleBtn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleBtn.click();
+        }
+      });
+
+      // Optional: respond to system theme changes if user has not saved preference
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          const saved = getSavedTheme();
+          if (!saved) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
