@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Carousel</title>
+  <style>
+    .carousel {
+      position: relative;
+      width: 500px;
+      height: 300px;
+      margin: 20px auto;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+    .carousel img {
+      width: 500px;
+      height: 300px;
+      object-fit: cover;
+    }
+    .prev, .next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 20px;
+      border-radius: 50%;
+    }
+    .prev { left: 10px; }
+    .next { right: 10px; }
+  </style>
+</head>
+<body>
+  <div class="carousel">
+    <div class="carousel-track">
+      <img src="https://picsum.photos/id/1018/500/300" alt="1">
+      <img src="https://picsum.photos/id/1015/500/300" alt="2">
+      <img src="https://picsum.photos/id/1019/500/300" alt="3">
+    </div>
+    <button class="prev">‹</button>
+    <button class="next">›</button>
+  </div>
+
+  <script>
+    const track = document.querySelector(".carousel-track");
+    const slides = Array.from(track.children);
+    const prevBtn = document.querySelector(".prev");
+    const nextBtn = document.querySelector(".next");
+    let index = 0;
+
+    function showSlide(i) {
+      index = (i + slides.length) % slides.length; // wrap around
+      track.style.transform = `translateX(-${index * 500}px)`;
+    }
+
+    prevBtn.addEventListener("click", () => showSlide(index - 1));
+    nextBtn.addEventListener("click", () => showSlide(index + 1));
+
+    // Auto-slide every 3 seconds
+    setInterval(() => showSlide(index + 1), 3000);
+  </script>
+</body>
+</html>
