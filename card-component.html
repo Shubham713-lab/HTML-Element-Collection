@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Card Component Demo</title>
+  <style>
+    body {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: #f8fafc;
+      margin: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      width: 250px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="https://via.placeholder.com/250x150" alt="Card Image">
+    <div class="card-content">
+      <div class="card-title">Card Title 1</div>
+      <div class="card-description">This is a description for card 1.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="https://via.placeholder.com/250x150" alt="Card Image">
+    <div class="card-content">
+      <div class="card-title">Card Title 2</div>
+      <div class="card-description">This is a description for card 2.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="https://via.placeholder.com/250x150" alt="Card Image">
+    <div class="card-content">
+      <div class="card-title">Card Title 3</div>
+      <div class="card-description">This is a description for card 3.</div>
+    </div>
+  </div>
+</body>
+</html>
