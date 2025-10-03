@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accordion Component</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    /* Accordion styling */
+    .accordion {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .accordion-item:last-child {
+      border-bottom: none;
+    }
+
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    .accordion-header:hover {
+      background: #f5f5f5;
+    }
+
+    .accordion-header.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .accordion-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .accordion-icon {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+      font-weight: bold;
+    }
+
+    .accordion-header.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 20px;
+      background: #fafafa;
+    }
+
+    .accordion-content.active {
+      max-height: 500px;
+      padding: 20px;
+    }
+
+    .accordion-text {
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .accordion-title {
+        font-size: 1rem;
+      }
+
+      .accordion-header {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FAQ - Accordion Component</h1>
+    
+    <div class="accordion">
+      <!-- Accordion Item 1 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-title">What is an accordion component?</span>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+          <p class="accordion-text">
+            An accordion is a vertically stacked list of items. Each item can be expanded or collapsed 
+            to reveal the content associated with that item. It's commonly used for FAQs, menus, 
+            and content organization where space is limited.
+          </p>
+        </div>
+      </div>
+
+      <!-- Accordion Item 2 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-title">How do I use this component?</span>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+          <p class="accordion-text">
+            Simply click on any header to expand or collapse the content. Only one section can be 
+            open at a time, which helps keep your interface clean and organized. This behavior 
+            can be customized to allow multiple sections to be open simultaneously.
+          </p>
+        </div>
+      </div>
+
+      <!-- Accordion Item 3 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-title">Is this component responsive?</span>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+          <p class="accordion-text">
+            Yes! This accordion component is fully responsive and works seamlessly on all devices 
+            including desktops, tablets, and mobile phones. The layout adjusts automatically to 
+            provide the best user experience on any screen size.
+          </p>
+        </div>
+      </div>
+
+      <!-- Accordion Item 4 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-title">Can I customize the styling?</span>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-content">
+          <p class="accordion-text">
+            Absolutely! The CSS is organized and easy to modify. You can change colors, fonts, 
+            spacing, animations, and more. The component uses CSS variables and simple selectors 
+            that make customization straightforward even for beginners.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Toggle accordion item
+     * Contributed by @AdityaDwiNugroho for Hacktoberfest 2025
+     * 
+     * @param {HTMLElement} header - The accordion header element that was clicked
+     */
+    function toggleAccordion(header) {
+      const content = header.nextElementSibling;
+      const allHeaders = document.querySelectorAll('.accordion-header');
+      const allContents = document.querySelectorAll('.accordion-content');
+      
+      // Close all other accordion items
+      allHeaders.forEach(h => {
+        if (h !== header) {
+          h.classList.remove('active');
+        }
+      });
+      
+      allContents.forEach(c => {
+        if (c !== content) {
+          c.classList.remove('active');
+        }
+      });
+      
+      // Toggle the clicked item
+      header.classList.toggle('active');
+      content.classList.toggle('active');
+    }
+
+    // Optional: Add keyboard accessibility
+    document.addEventListener('DOMContentLoaded', function() {
+      const headers = document.querySelectorAll('.accordion-header');
+      
+      headers.forEach(header => {
+        // Make accordion headers keyboard accessible
+        header.setAttribute('tabindex', '0');
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-expanded', 'false');
+        
+        // Add keyboard support
+        header.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleAccordion(this);
+            
+            // Update aria-expanded
+            const isActive = this.classList.contains('active');
+            this.setAttribute('aria-expanded', isActive);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
