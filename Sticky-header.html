@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sticky Header Demo</title>
+  <style>
+    /* Basic styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background: #333;
+      color: #fff;
+      padding: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      transition: box-shadow 0.3s, background-color 0.3s;
+      z-index: 1000;
+    }
+    .sticky {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .sticky--scrolled {
+      background-color: rgba(51, 51, 51, 0.95);
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    section {
+      height: 800px;
+      margin-bottom: 2rem;
+      background: #f4f4f4;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<header id="myHeader">
+  <nav>
+    <h1>My Site</h1>
+  </nav>
+</header>
+
+<main>
+  <section>Scroll down to see sticky effect</section>
+  <section>More content</section>
+  <section>More content</section>
+</main>
+
+<script>
+  class StickyHeader {
+    /**
+     * 
+     * @param {string|HTMLElement} selector — CSS selector or element for header
+     * @param {Object} options — customization options
+     *    offset: number (px) — when to apply sticky (default: header’s original top)
+     *    scrolledClass: string — class name added after scroll threshold
+     *    stickyClass: string — class name for sticky state
+     */
+    constructor(selector, options = {}) {
+      this.header = (typeof selector === 'string')
+        ? document.querySelector(selector)
+        : selector;
+
+      if (!this.header) {
+        throw new Error("StickyHeader: header element not found");
+      }
+
+      // Default options
+      this.options = {
+        offset: null,
+        stickyClass: 'sticky',
+        scrolledClass: 'sticky--scrolled',
+        scrollThreshold: 0,  // extra threshold beyond offset
+        ...options
+      };
+
+      // Save original position
+      this.initialOffset = this.header.getBoundingClientRect().top + window.scrollY;
+
+      if (this.options.offset != null) {
+        this.stickyOffset = this.options.offset;
+      } else {
+        this.stickyOffset = this.initialOffset;
+      }
+
+      this._onScroll = this._onScroll.bind(this);
+      this._onResize = this._onResize.bind(this);
+
+      window.addEventListener('scroll', this._onScroll);
+      window.addEventListener('resize', this._onResize);
+
+      // Run once to set initial state
+      this._onScroll();
+    }
+
+    _onScroll() {
+      const scrollY = window.scrollY;
+
+      if (scrollY >= this.stickyOffset) {
+        if (!this.header.classList.contains(this.options.stickyClass)) {
+          this.header.classList.add(this.options.stickyClass);
+        }
+        // If scrolled a bit more, add extra class
+        if (scrollY > this.stickyOffset + this.options.scrollThreshold) {
+          this.header.classList.add(this.options.scrolledClass);
+        } else {
+          this.header.classList.remove(this.options.scrolledClass);
+        }
+      } else {
+        this.header.classList.remove(this.options.stickyClass);
+        this.header.classList.remove(this.options.scrolledClass);
+      }
+    }
+
+    _onResize() {
+      // Recompute offsets
+      this.initialOffset = this.header.getBoundingClientRect().top + window.scrollY;
+      if (this.options.offset == null) {
+        this.stickyOffset = this.initialOffset;
+      }
+      this._onScroll();  // re-evaluate state
+    }
+
+    // Optionally, a method to destroy the sticky behavior
+    destroy() {
+      window.removeEventListener('scroll', this._onScroll);
+      window.removeEventListener('resize', this._onResize);
+      this.header.classList.remove(this.options.stickyClass);
+      this.header.classList.remove(this.options.scrolledClass);
+    }
+  }
+
+  // Example usage:
+  document.addEventListener('DOMContentLoaded', () => {
+    new StickyHeader('#myHeader', {
+      offset: null,
+      scrolledClass: 'sticky--scrolled',
+      stickyClass: 'sticky',
+      scrollThreshold: 20
+    });
+  });
+</script>
+
+</body>
+</html>
