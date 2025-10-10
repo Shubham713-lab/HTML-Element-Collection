@@ -1,0 +1,57 @@
+<!-- HTML Structure -->
+<div class="carousel" id="myCarousel">
+  <div class="carousel-slide active"><img src="image1.jpg" alt="Slide 1"></div>
+  <div class="carousel-slide"><img src="image2.jpg" alt="Slide 2"></div>
+  <div class="carousel-slide"><img src="image3.jpg" alt="Slide 3"></div>
+  <button class="carousel-btn prev">&#10094;</button>
+  <button class="carousel-btn next">&#10095;</button>
+</div>
+
+<style>
+.carousel { position: relative; width: 100%; max-width: 600px; margin: auto; overflow: hidden; }
+.carousel-slide { display: none; position: absolute; width: 100%; }
+.carousel-slide img { width: 100%; display: block; }
+.carousel-slide.active { display: block; animation: fade 1s; }
+.carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: #fff; padding: 10px; cursor: pointer; }
+.prev { left: 10px; }
+.next { right: 10px; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<script>
+class Carousel {
+  constructor(selector, options = {}) {
+    this.carousel = document.querySelector(selector);
+    this.slides = this.carousel.querySelectorAll('.carousel-slide');
+    this.current = 0;
+    this.auto = options.auto || false;
+    this.interval = options.interval || 3000;
+    this.init();
+  }
+  init() {
+    this.showSlide(this.current);
+    this.carousel.querySelector('.prev').addEventListener('click', () => this.prev());
+    this.carousel.querySelector('.next').addEventListener('click', () => this.next());
+    if (this.auto) this.startAuto();
+  }
+  showSlide(index) {
+    this.slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+  }
+  next() {
+    this.current = (this.current + 1) % this.slides.length;
+    this.showSlide(this.current);
+  }
+  prev() {
+    this.current = (this.current - 1 + this.slides.length) % this.slides.length;
+    this.showSlide(this.current);
+  }
+  startAuto() {
+    setInterval(() => this.next(), this.interval);
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  new Carousel('#myCarousel', { auto: true, interval: 4000 });
+});
+</script>
