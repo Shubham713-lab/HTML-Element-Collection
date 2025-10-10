@@ -1,0 +1,364 @@
+<!-- Tooltip Component (Standalone)
+
+Files suggested:
+- tooltip.js         -> exported class Tooltip
+- tooltip.css        -> styles (CSS variables for customization)
+- demo.html          -> demo + usage example
+
+This single-file demo below contains HTML + CSS + JS (class based) ready to drop into the
+HTML-Element-Collection repo. The component is accessible (ARIA), keyboard friendly,
+customizable via options and CSS variables, and supports hover / focus / touch triggers.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tooltip Component Demo</title>
+<style>
+  /* Tooltip CSS (use CSS variables to customize) */
+  :root{
+    --tooltip-bg: #222;
+    --tooltip-color: #fff;
+    --tooltip-padding: 8px 10px;
+    --tooltip-radius: 6px;
+    --tooltip-font-size: 13px;
+    --tooltip-z: 10000;
+    --tooltip-offset: 8px;
+    --tooltip-transition: 160ms ease;
+    --tooltip-max-width: 280px;
+    --tooltip-arrow-size: 8px;
+  }
+
+  .hc-tooltip {
+    position: absolute;
+    display: inline-block;
+    padding: var(--tooltip-padding);
+    background: var(--tooltip-bg);
+    color: var(--tooltip-color);
+    border-radius: var(--tooltip-radius);
+    font-size: var(--tooltip-font-size);
+    max-width: var(--tooltip-max-width);
+    box-sizing: border-box;
+    z-index: var(--tooltip-z);
+    pointer-events: none; /* default: non-interactive */
+    opacity: 0;
+    transform-origin: center;
+    transform: scale(0.96);
+    transition: opacity var(--tooltip-transition), transform var(--tooltip-transition);
+    will-change: transform, opacity, top, left;
+  }
+
+  .hc-tooltip.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto; /* becomes interactive when visible if allowed */
+  }
+
+  .hc-tooltip[data-placement^="top"] { transform-origin: bottom center; }
+  .hc-tooltip[data-placement^="bottom"] { transform-origin: top center; }
+  .hc-tooltip[data-placement^="left"] { transform-origin: right center; }
+  .hc-tooltip[data-placement^="right"] { transform-origin: left center; }
+
+  /* Arrow */
+  .hc-tooltip::after{
+    content: '';
+    position: absolute;
+    width: 0; height: 0;
+    border-style: solid;
+  }
+  /* top */
+  .hc-tooltip[data-placement^="top"]::after{
+    bottom: calc(-1 * var(--tooltip-arrow-size));
+    left: calc(50% - var(--tooltip-arrow-size));
+    border-width: var(--tooltip-arrow-size) var(--tooltip-arrow-size) 0 var(--tooltip-arrow-size);
+    border-color: var(--tooltip-bg) transparent transparent transparent;
+  }
+  /* bottom */
+  .hc-tooltip[data-placement^="bottom"]::after{
+    top: calc(-1 * var(--tooltip-arrow-size));
+    left: calc(50% - var(--tooltip-arrow-size));
+    border-width: 0 var(--tooltip-arrow-size) var(--tooltip-arrow-size) var(--tooltip-arrow-size);
+    border-color: transparent transparent var(--tooltip-bg) transparent;
+  }
+  /* left */
+  .hc-tooltip[data-placement^="left"]::after{
+    right: calc(-1 * var(--tooltip-arrow-size));
+    top: calc(50% - var(--tooltip-arrow-size));
+    border-width: var(--tooltip-arrow-size) 0 var(--tooltip-arrow-size) var(--tooltip-arrow-size);
+    border-color: transparent transparent transparent var(--tooltip-bg);
+  }
+  /* right */
+  .hc-tooltip[data-placement^="right"]::after{
+    left: calc(-1 * var(--tooltip-arrow-size));
+    top: calc(50% - var(--tooltip-arrow-size));
+    border-width: var(--tooltip-arrow-size) var(--tooltip-arrow-size) var(--tooltip-arrow-size) 0;
+    border-color: transparent var(--tooltip-bg) transparent transparent;
+  }
+
+  /* Utility demo styles */
+  body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; padding:40px}
+  .demo-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .demo-btn{padding:8px 12px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer}
+
+</style>
+</head>
+<body>
+
+<h2>Tooltip Component — Demo</h2>
+<p>Hover or focus the elements below to see tooltips. Tooltips are accessible (aria) and keyboard-friendly.</p>
+
+<div class="demo-row">
+  <button class="demo-btn" data-tooltip="I'm a tooltip on top" data-tooltip-placement="top">Top</button>
+  <button class="demo-btn" data-tooltip="I'm a tooltip on right" data-tooltip-placement="right">Right</button>
+  <button class="demo-btn" data-tooltip="I'm a tooltip on bottom" data-tooltip-placement="bottom">Bottom</button>
+  <button class="demo-btn" data-tooltip="I'm a tooltip on left" data-tooltip-placement="left">Left</button>
+
+  <a href="#" class="demo-btn" data-tooltip="Tooltip for a link\nSupports multiline and max width">Link</a>
+  <input class="demo-btn" data-tooltip="Tooltip on focus" data-tooltip-delay="300" placeholder="focus me" />
+</div>
+
+<script>
+/* Tooltip.js -- small, dependency-free tooltip component
+
+Usage (auto-initialize): add attribute data-tooltip="Text" to elements.
+Optional attributes on trigger element:
+  - data-tooltip-placement="top|bottom|left|right" (preferred placement)
+  - data-tooltip-delay="number" (ms delay before show)
+  - data-tooltip-interactive (if present, allows pointer interaction with tooltip)
+  - data-tooltip-id="custom-id" (id for tooltip, otherwise auto-generated)
+
+API (if using programmatically):
+  const t = new Tooltip(document.querySelector('.my-trigger'), options);
+  t.show(); t.hide(); t.destroy();
+
+Accessibility:
+  - tooltip element has role="tooltip" and is referenced by aria-describedby on the trigger
+  - tooltip shows on hover, focus; hides on blur, mouseleave, Escape key
+*/
+
+class Tooltip {
+  constructor(trigger, options = {}){
+    if (!trigger) throw new Error('Tooltip: trigger element required');
+    this.trigger = trigger;
+    this.options = Object.assign({
+      placement: trigger.getAttribute('data-tooltip-placement') || options.placement || 'top',
+      content: trigger.getAttribute('data-tooltip') || options.content || '',
+      delay: parseInt(trigger.getAttribute('data-tooltip-delay')) || options.delay || 150,
+      offset: parseInt(trigger.getAttribute('data-tooltip-offset')) || options.offset || 8,
+      interactive: ('data-tooltip-interactive' in trigger) || options.interactive || false,
+      id: trigger.getAttribute('data-tooltip-id') || options.id || `hc-tip-${Math.random().toString(36).slice(2,9)}`,
+      maxWidth: options.maxWidth || '280px',
+    }, {});
+
+    // Create tooltip element
+    this._createTooltipEl();
+
+    // Bind handlers
+    this._onMouseEnter = this._onMouseEnter.bind(this);
+    this._onMouseLeave = this._onMouseLeave.bind(this);
+    this._onFocus = this._onFocus.bind(this);
+    this._onBlur = this._onBlur.bind(this);
+    this._onKeyDown = this._onKeyDown.bind(this);
+    this._onTouch = this._onTouch.bind(this);
+
+    // Setup listeners
+    this._addListeners();
+
+    // State
+    this._showTimer = null;
+    this._visible = false;
+  }
+
+  _createTooltipEl(){
+    const tip = document.createElement('div');
+    tip.className = 'hc-tooltip';
+    tip.id = this.options.id;
+    tip.setAttribute('role', 'tooltip');
+    tip.setAttribute('data-placement', this.options.placement);
+    tip.style.maxWidth = this.options.maxWidth;
+    tip.style.pointerEvents = this.options.interactive ? 'auto' : 'none';
+
+    // allow HTML in data-tooltip by using innerHTML
+    tip.innerHTML = this.options.content.replace(/\n/g, '<br>');
+
+    // hide by default
+    tip.setAttribute('aria-hidden', 'true');
+
+    document.body.appendChild(tip);
+    this.tip = tip;
+
+    // link trigger to tooltip for screen readers
+    this._setAria();
+  }
+
+  _setAria(){
+    const described = this.trigger.getAttribute('aria-describedby');
+    if (described) return; // respect existing
+    this.trigger.setAttribute('aria-describedby', this.tip.id);
+  }
+
+  _addListeners(){
+    this.trigger.addEventListener('mouseenter', this._onMouseEnter);
+    this.trigger.addEventListener('mouseleave', this._onMouseLeave);
+    this.trigger.addEventListener('focus', this._onFocus);
+    this.trigger.addEventListener('blur', this._onBlur);
+    this.trigger.addEventListener('keydown', this._onKeyDown);
+    // touch support: toggle on touchstart
+    this.trigger.addEventListener('touchstart', this._onTouch, {passive:true});
+
+    if (this.options.interactive){
+      // keep tooltip visible when pointer enters it
+      this.tip.addEventListener('mouseenter', this._onMouseEnter);
+      this.tip.addEventListener('mouseleave', this._onMouseLeave);
+    }
+  }
+
+  _removeListeners(){
+    this.trigger.removeEventListener('mouseenter', this._onMouseEnter);
+    this.trigger.removeEventListener('mouseleave', this._onMouseLeave);
+    this.trigger.removeEventListener('focus', this._onFocus);
+    this.trigger.removeEventListener('blur', this._onBlur);
+    this.trigger.removeEventListener('keydown', this._onKeyDown);
+    this.trigger.removeEventListener('touchstart', this._onTouch);
+    if (this.options.interactive){
+      this.tip.removeEventListener('mouseenter', this._onMouseEnter);
+      this.tip.removeEventListener('mouseleave', this._onMouseLeave);
+    }
+  }
+
+  _onMouseEnter(){
+    clearTimeout(this._showTimer);
+    this._showTimer = setTimeout(() => this.show(), this.options.delay);
+  }
+  _onMouseLeave(){
+    clearTimeout(this._showTimer);
+    this.hide();
+  }
+  _onFocus(){
+    clearTimeout(this._showTimer);
+    this._showTimer = setTimeout(() => this.show(), 0);
+  }
+  _onBlur(){
+    clearTimeout(this._showTimer);
+    this.hide();
+  }
+  _onKeyDown(e){
+    if (e.key === 'Escape' && this._visible) {
+      this.hide();
+      this.trigger.focus();
+    }
+  }
+  _onTouch(e){
+    // show briefly on touch (toggle)
+    if (this._visible) { this.hide(); }
+    else { this.show(); }
+  }
+
+  show(){
+    if (!this.tip) return;
+    this._visible = true;
+    this.tip.classList.add('show');
+    this.tip.setAttribute('aria-hidden', 'false');
+    this._position();
+
+    // update data-placement attribute after position calculation
+    // (keeps arrow positioned correctly when flipped)
+  }
+
+  hide(){
+    if (!this.tip) return;
+    this._visible = false;
+    this.tip.classList.remove('show');
+    this.tip.setAttribute('aria-hidden', 'true');
+  }
+
+  _position(){
+    const rect = this.trigger.getBoundingClientRect();
+    const tip = this.tip;
+    const placementPref = this.options.placement;
+    const offset = this.options.offset || 8;
+
+    const winW = document.documentElement.clientWidth;
+    const winH = document.documentElement.clientHeight;
+
+    // Measure tip size (ensure it's visible offscreen for measurement)
+    tip.style.left = '0px';
+    tip.style.top = '0px';
+    tip.style.visibility = 'hidden';
+    tip.classList.add('show'); // temporarily show to measure if hidden
+    const tipRect = tip.getBoundingClientRect();
+    tip.classList.remove('show');
+    tip.style.visibility = '';
+
+    const placements = [placementPref, 'top','bottom','right','left'];
+
+    let chosen = placementPref;
+    let top = 0, left = 0;
+
+    for (let p of placements){
+      let t = 0, l = 0;
+      if (p === 'top'){
+        t = rect.top - tipRect.height - offset;
+        l = rect.left + (rect.width - tipRect.width)/2;
+      } else if (p === 'bottom'){
+        t = rect.bottom + offset;
+        l = rect.left + (rect.width - tipRect.width)/2;
+      } else if (p === 'left'){
+        t = rect.top + (rect.height - tipRect.height)/2;
+        l = rect.left - tipRect.width - offset;
+      } else if (p === 'right'){
+        t = rect.top + (rect.height - tipRect.height)/2;
+        l = rect.right + offset;
+      }
+      // check if fully visible in viewport
+      const fitsHoriz = (l >= 0) && (l + tipRect.width <= winW);
+      const fitsVert = (t >= 0) && (t + tipRect.height <= winH);
+      if (fitsHoriz && fitsVert){ chosen = p; top = t; left = l; break; }
+      // otherwise keep last calculated as fallback
+      chosen = p; top = t; left = l;
+    }
+
+    // Constrain to viewport with small padding
+    const pad = 6;
+    left = Math.min(Math.max(left, pad), winW - tipRect.width - pad);
+    top = Math.min(Math.max(top, pad), winH - tipRect.height - pad);
+
+    // apply
+    tip.style.left = (left + window.scrollX) + 'px';
+    tip.style.top = (top + window.scrollY) + 'px';
+    tip.setAttribute('data-placement', chosen);
+
+    // ensure visible class stays
+    if (this._visible) tip.classList.add('show');
+  }
+
+  updateContent(htmlOrText){
+    this.tip.innerHTML = htmlOrText;
+  }
+
+  destroy(){
+    this._removeListeners();
+    if (this.tip && this.tip.parentNode) this.tip.parentNode.removeChild(this.tip);
+    this.tip = null;
+  }
+}
+
+// Auto-initialize all elements with data-tooltip attribute
+(function initAuto(){
+  const els = document.querySelectorAll('[data-tooltip]');
+  const instances = [];
+  for (const el of els){
+    try{
+      instances.push(new Tooltip(el));
+    }catch(e){ console.warn('Tooltip init error', e); }
+  }
+  // expose for debugging
+  window.__hc_tooltips = instances;
+})();
+
+</script>
+
+</body>
+</html>
