@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-Step Form Component</title>
+  <style>
+    .multi-step-form {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      font-family: sans-serif;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .step-indicators {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .step-indicators .indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: 0 5px;
+      transition: background 0.3s;
+    }
+    .step-indicators .indicator.active {
+      background: #29d;
+    }
+    input.invalid {
+      border-color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="multi-step-form" id="myForm">
+    <div class="step active">
+      <h3>Step 1</h3>
+      <label>
+        First name:
+        <input type="text" name="firstName" required />
+      </label>
+      <label>
+        Last name:
+        <input type="text" name="lastName" required />
+      </label>
+    </div>
+
+    <div class="step">
+      <h3>Step 2</h3>
+      <label>
+        Email:
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        Phone:
+        <input type="tel" name="phone" required />
+      </label>
+    </div>
+
+    <div class="step">
+      <h3>Step 3</h3>
+      <label>
+        Password:
+        <input type="password" name="password" required />
+      </label>
+      <label>
+        Confirm Password:
+        <input type="password" name="confirmPassword" required />
+      </label>
+    </div>
+
+    <div class="step-indicators">
+      <span class="indicator active"></span>
+      <span class="indicator"></span>
+      <span class="indicator"></span>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="prev">Previous</button>
+      <button type="button" class="next">Next</button>
+    </div>
+  </div>
+
+  <script>
+    class MultiStepForm {
+      /**
+       * @param {string|HTMLElement} selector — container for the form
+       * @param {Object} options — optional settings
+       */
+      constructor(selector, options = {}) {
+        this.container = typeof selector === 'string'
+          ? document.querySelector(selector)
+          : selector;
+        if (!this.container) {
+          throw new Error('MultiStepForm: container not found');
+        }
+        this.steps = Array.from(this.container.querySelectorAll('.step'));
+        this.indicators = Array.from(this.container.querySelectorAll('.indicator'));
+        this.btnPrev = this.container.querySelector('.prev');
+        this.btnNext = this.container.querySelector('.next');
+        this.current = 0;
+        this.options = {
+          validateOnNext: true,
+          ...options
+        };
+        this._setup();
+      }
+
+      _setup() {
+        this._showStep(this.current);
+        this.btnPrev.addEventListener('click', () => this.prev());
+        this.btnNext.addEventListener('click', () => this.next());
+        this._updateButtons();
+      }
+
+      _showStep(index) {
+        this.steps.forEach((step, i) => {
+          step.classList.toggle('active', i === index);
+        });
+        this.indicators.forEach((ind, i) => {
+          ind.classList.toggle('active', i === index);
+        });
+      }
+
+      _validateStep(index) {
+        const step = this.steps[index];
+        const inputs = Array.from(step.querySelectorAll('input'));
+        let valid = true;
+        inputs.forEach(input => {
+          input.classList.remove('invalid');
+          if (input.hasAttribute('required') && !input.value) {
+            input.classList.add('invalid');
+            valid = false;
+          }
+          // Additional validation: password match
+          if (input.name === 'confirmPassword') {
+            const pwd = step.querySelector('input[name="password"]');
+            if (pwd && input.value !== pwd.value) {
+              input.classList.add('invalid');
+              valid = false;
+            }
+          }
+        });
+        return valid;
+      }
+
+      next() {
+        // validate current if needed
+        if (this.options.validateOnNext && !this._validateStep(this.current)) {
+          return;
+        }
+        if (this.current < this.steps.length - 1) {
+          this.current++;
+          this._showStep(this.current);
+        } else {
+          // Last step: submit form or trigger callback
+          this._finish();
+        }
+        this._updateButtons();
+      }
+
+      prev() {
+        if (this.current > 0) {
+          this.current--;
+          this._showStep(this.current);
+        }
+        this._updateButtons();
+      }
+
+      _updateButtons() {
+        if (this.current === 0) {
+          this.btnPrev.style.visibility = 'hidden';
+        } else {
+          this.btnPrev.style.visibility = 'visible';
+        }
+        if (this.current === this.steps.length - 1) {
+          this.btnNext.textContent = 'Submit';
+        } else {
+          this.btnNext.textContent = 'Next';
+        }
+      }
+
+      _finish() {
+        // Collect form data
+        const data = {};
+        const inputs = this.container.querySelectorAll('input');
+        inputs.forEach(input => {
+          data[input.name] = input.value;
+        });
+        console.log('Form data:', data);
+        // Optionally dispatch an event
+        this.container.dispatchEvent(new CustomEvent('multistep:submit', {
+          detail: data
+        }));
+      }
+
+      destroy() {
+        this.btnPrev.removeEventListener('click', this.prev);
+        this.btnNext.removeEventListener('click', this.next);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new MultiStepForm('#myForm', { validateOnNext: true });
+    });
+  </script>
+
+</body>
+</html>
