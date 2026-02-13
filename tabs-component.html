@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabs Component</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    /* Tabs wrapper */
+    .tabs-wrapper {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    /* Tab buttons container */
+    .tab-buttons {
+      display: flex;
+      background: #f5f5f5;
+      border-bottom: 2px solid #e0e0e0;
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 18px 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s ease;
+      position: relative;
+      white-space: nowrap;
+      min-width: 120px;
+    }
+
+    .tab-button:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      background: white;
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #667eea;
+    }
+
+    /* Tab content area */
+    .tab-content-wrapper {
+      padding: 30px;
+      min-height: 300px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Content styling */
+    .tab-content h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .tab-content p {
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .tab-content ul {
+      margin-left: 20px;
+      color: #666;
+    }
+
+    .tab-content li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .tab-content .highlight {
+      background: #fff3cd;
+      padding: 15px;
+      border-left: 4px solid #ffc107;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .tab-content .info-box {
+      background: #e3f2fd;
+      padding: 15px;
+      border-left: 4px solid #2196f3;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .tab-button {
+        padding: 15px 18px;
+        font-size: 0.9rem;
+        min-width: 100px;
+      }
+
+      .tab-content-wrapper {
+        padding: 20px;
+        min-height: 250px;
+      }
+
+      .tab-content h2 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Interactive Tabs Component</h1>
+    
+    <div class="tabs-wrapper">
+      <!-- Tab Buttons -->
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event, 'overview')">
+          Overview
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'features')">
+          Features
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'usage')">
+          Usage
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'examples')">
+          Examples
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content-wrapper">
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+          <h2>📋 Overview</h2>
+          <p>
+            A tabs component is a user interface pattern that allows users to switch between 
+            different views or sections of content within the same page area. It's an efficient 
+            way to organize information and reduce scrolling.
+          </p>
+          <div class="highlight">
+            <strong>💡 Key Benefit:</strong> Tabs help organize large amounts of content into 
+            manageable, categorized sections that users can easily navigate between.
+          </div>
+          <p>
+            This implementation features smooth animations, keyboard accessibility, and a 
+            responsive design that works seamlessly on all devices.
+          </p>
+        </div>
+
+        <!-- Features Tab -->
+        <div id="features" class="tab-content">
+          <h2>✨ Features</h2>
+          <ul>
+            <li><strong>Smooth Transitions:</strong> Elegant fade-in animations when switching tabs</li>
+            <li><strong>Responsive Design:</strong> Adapts perfectly to mobile, tablet, and desktop screens</li>
+            <li><strong>Keyboard Navigation:</strong> Full accessibility support for keyboard users</li>
+            <li><strong>Active State Indicator:</strong> Clear visual feedback showing the current tab</li>
+            <li><strong>Horizontal Scroll:</strong> On smaller screens, tabs scroll horizontally</li>
+            <li><strong>Clean Code:</strong> Well-organized, commented, and easy to customize</li>
+          </ul>
+          <div class="info-box">
+            <strong>🎨 Customizable:</strong> Easily change colors, fonts, spacing, and animations 
+            by modifying the CSS variables and styles.
+          </div>
+        </div>
+
+        <!-- Usage Tab -->
+        <div id="usage" class="tab-content">
+          <h2>🚀 How to Use</h2>
+          <p>
+            Using this tabs component is simple and straightforward:
+          </p>
+          <ul>
+            <li><strong>Click any tab button</strong> to view its corresponding content</li>
+            <li><strong>Use keyboard navigation</strong> - Tab key to focus, Enter to activate</li>
+            <li><strong>Add new tabs</strong> by copying the button and content structure</li>
+            <li><strong>Customize styling</strong> by editing the CSS classes</li>
+          </ul>
+          <div class="highlight">
+            <strong>⚡ Pro Tip:</strong> You can nest other components inside tab content, 
+            including forms, cards, images, or even other interactive elements!
+          </div>
+          <p>
+            The component is self-contained in a single HTML file, making it easy to integrate 
+            into any project.
+          </p>
+        </div>
+
+        <!-- Examples Tab -->
+        <div id="examples" class="tab-content">
+          <h2>💼 Use Cases</h2>
+          <p>
+            Tabs are incredibly versatile and can be used in many scenarios:
+          </p>
+          <ul>
+            <li><strong>Product Details:</strong> Separate specifications, reviews, and shipping info</li>
+            <li><strong>Dashboard Sections:</strong> Organize analytics, reports, and settings</li>
+            <li><strong>Documentation:</strong> Split guides, API references, and examples</li>
+            <li><strong>Profile Pages:</strong> Divide posts, about, and contact information</li>
+            <li><strong>E-commerce:</strong> Display different product categories or filters</li>
+            <li><strong>Forms:</strong> Break long forms into manageable steps</li>
+          </ul>
+          <div class="info-box">
+            <strong>🌟 Best Practice:</strong> Don't overcrowd with too many tabs. 
+            Keep it to 3-6 tabs for optimal user experience.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Open/Switch Tab Function
+     * Contributed by @AdityaDwiNugroho for Hacktoberfest 2025
+     * 
+     * @param {Event} evt - The click event
+     * @param {string} tabId - The ID of the tab content to display
+     */
+    function openTab(evt, tabId) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Remove active class from all buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.classList.remove('active');
+        button.setAttribute('aria-selected', 'false');
+      });
+
+      // Show the selected tab content
+      const selectedTab = document.getElementById(tabId);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+
+      // Add active class to the clicked button
+      if (evt && evt.currentTarget) {
+        evt.currentTarget.classList.add('active');
+        evt.currentTarget.setAttribute('aria-selected', 'true');
+      }
+    }
+
+    // Add keyboard accessibility
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      
+      tabButtons.forEach((button, index) => {
+        // Set ARIA attributes
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', button.classList.contains('active'));
+        button.setAttribute('tabindex', button.classList.contains('active') ? '0' : '-1');
+
+        // Keyboard navigation
+        button.addEventListener('keydown', function(e) {
+          let targetButton = null;
+
+          if (e.key === 'ArrowRight') {
+            // Move to next tab
+            targetButton = tabButtons[index + 1] || tabButtons[0];
+          } else if (e.key === 'ArrowLeft') {
+            // Move to previous tab
+            targetButton = tabButtons[index - 1] || tabButtons[tabButtons.length - 1];
+          }
+
+          if (targetButton) {
+            e.preventDefault();
+            targetButton.focus();
+            targetButton.click();
+          }
+        });
+      });
+
+      // Set ARIA attributes for tab panels
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.setAttribute('role', 'tabpanel');
+      });
+    });
+  </script>
+</body>
+</html>
